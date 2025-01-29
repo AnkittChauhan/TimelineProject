@@ -54,7 +54,7 @@ const TimelineMonthView = () => {
   };
 
   const events = generateEvents();
-  const times = Array.from({ length: 17 }, (_, i) => i + 6); // 6AM to 10PM
+  const times = Array.from({ length: 24 }, (_, i) => i  + 24); // 6AM to 10PM
 
   return (
     <div className="timeline-container">
