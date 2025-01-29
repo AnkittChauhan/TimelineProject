@@ -126,6 +126,7 @@
 /* Event Styles */
 .event {
   position: absolute;
+  z-index: 10;
   left: 4px;
   right: 4px;
   padding: 8px;
