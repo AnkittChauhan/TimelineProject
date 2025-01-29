@@ -1,0 +1,233 @@
+/* Timeline Container Styles */
+.timeline-container {
+  height: 100vh;
+  overflow: auto;
+  padding: 20px;
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Month Navigation Header */
+.month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin-bottom: 20px;
+}
+
+.nav-button {
+  padding: 8px 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #495057;
+}
+
+.nav-button:hover {
+  background: #e9ecef;
+  border-color: #ced4da;
+  transform: translateY(-1px);
+}
+
+.month-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #212529;
+  min-width: 250px;
+  text-align: center;
+}
+
+/* Timeline Grid Layout */
+.timeline-grid {
+  display: flex;
+  position: relative;
+  min-width: fit-content;
+}
+
+/* Time Column Styles */
+.time-column {
+  width: 80px;
+  background: #f8f9fa;
+  position: sticky;
+  left: 0;
+  z-index: 50;
+  padding-top: 40px;
+}
+
+.time-slot {
+  height: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 0.8em;
+  color: #6c757d;
+  border-bottom: 1px solid #dee2e6;
+}
+
+/* Day Column Styles */
+.day-column {
+  flex: 1;
+  min-width: 120px;
+  border-left: 1px solid #dee2e6;
+  position: relative;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 59px,
+    #f8f9fa 59px,
+    #f8f9fa 60px
+  );
+}
+
+.day-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  background: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+  position: sticky;
+  top: 60px;
+  z-index: 40;
+}
+
+.weekday {
+  font-size: 0.75em;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.date-number {
+  font-size: 1.25em;
+  font-weight: 600;
+  color: #212529;
+  margin-top: 2px;
+}
+
+/* Time Cells Grid */
+.day-cells {
+  position: relative;
+  height: calc(60px * 17); /* 17 hours (6AM-10PM) */
+}
+
+.time-cell {
+  height: 60px;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+/* Event Styles */
+.event {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+}
+
+.event-title {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.event-time {
+  font-size: 0.75em;
+  color: #495057;
+  opacity: 0.9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .timeline-container {
+    padding: 10px;
+  }
+
+  .month-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .nav-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .day-column {
+    min-width: 90px;
+  }
+
+  .time-column {
+    width: 60px;
+  }
+
+  .date-number {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .timeline-container {
+    padding: 5px;
+  }
+
+  .month-header {
+    padding: 10px;
+  }
+
+  .day-column {
+    min-width: 75px;
+  }
+
+  .time-column {
+    width: 50px;
+    font-size: 0.7em;
+  }
+
+  .event-title {
+    font-size: 0.75em;
+  }
+
+  .event-time {
+    font-size: 0.65em;
+  }
+}
+
+/* Today Highlight */
+.today .date-number {
+  color: #ffffff;
+  background-color: #1971c2;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Weekend Highlight */
+.weekend {
+  background-color: #f8f9fa;
+}
