@@ -133,9 +133,20 @@
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  cursor: pointer;
+  cursor: move;
   transition: all 0.2s ease;
   border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.event {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  cursor: move;
 }
 
 .event:hover {
@@ -228,4 +239,35 @@
 /* Weekend Highlight */
 .weekend {
   background-color: #f8f9fa;
+}
+
+.resize-handle:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.resize-handle.horizontal {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.resize-handle.vertical {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resize-handle {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+}
+
+.event-content {
+  position: relative;
+  z-index: 1;
 }
