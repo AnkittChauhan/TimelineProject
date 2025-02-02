@@ -254,6 +254,8 @@ const generateEvents = (currentDate) => {
       end: new Date(year, month, 25, 16, 0),
       color: "#dab9ff",
     },
+
+  // Tests 
   ];
 };
 
