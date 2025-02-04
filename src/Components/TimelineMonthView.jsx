@@ -33,7 +33,7 @@ const TimelineMonthView = () => {
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   // Time slots from 12 AM to 11 PM
-  const times = Array.from({ length: 24 }, (_, i) => i );
+  const times = Array.from({ length: 25 }, (_, i) => i );
 
   // Move event handler
   const moveEvent = (eventId, newDay, newTime) => {
