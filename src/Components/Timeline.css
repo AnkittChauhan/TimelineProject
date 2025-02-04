@@ -271,3 +271,17 @@
   position: relative;
   z-index: 1;
 }
+
+.create-event-form {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 10px;
+  /* background: #f9f9f9; */
+  border-radius: 5px;
+}
+
+.create-event-form input, .create-event-form button {
+  padding: 5px;
+  font-size: 14px;
+}

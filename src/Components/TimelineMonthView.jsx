@@ -12,8 +12,9 @@ const TimelineMonthView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState(generateEvents(currentDate));
   const [resizingEvent, setResizingEvent] = useState(null);
+  const [newEvent, setNewEvent] = useState({ title: "", date: "", time: "", color: "#ffdab9" });
 
-  // Month navigation
+  // Handle month navigation
   const handlePreviousMonth = () => {
     const newDate = addMonths(currentDate, -1);
     setCurrentDate(newDate);
@@ -32,9 +33,9 @@ const TimelineMonthView = () => {
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   // Time slots from 12 AM to 11 PM
-  const times = Array.from({ length: 24 }, (_, i) => i);
+  const times = Array.from({ length: 24 }, (_, i) => i );
 
-  // Event movement handler
+  // Move event handler
   const moveEvent = (eventId, newDay, newTime) => {
     setEvents((prevEvents) =>
       prevEvents.map((event) =>
@@ -49,70 +50,52 @@ const TimelineMonthView = () => {
     );
   };
 
-  // Event resizing handler
-  const handleResize = (eventId, direction, e) => {
-    e.preventDefault();
-    setResizingEvent(eventId);
-  
-    const startX = e.pageX;
-    const startY = e.pageY;
-  
-    setEvents((prevEvents) =>
-      prevEvents.map((ev) =>
-        ev.id === eventId
-          ? {
-              ...ev,
-              originalStart: ev.start,
-              originalEnd: ev.end,
-            }
-          : ev
-      )
-    );
-  
-    const handleMouseMove = (e) => {
-      setEvents((prevEvents) =>
-        prevEvents.map((ev) => {
-          if (ev.id === eventId) {
-            let newStart = ev.originalStart;
-            let newEnd = ev.originalEnd;
-  
-            if (direction === "vertical") {
-              const diffY = e.pageY - startY;
-              const minutesDiff = Math.round(diffY / 5) * 5; // Adjusting step size
-              newEnd = new Date(ev.originalEnd.getTime() + minutesDiff * 60000);
-            } else if (direction === "horizontal") {
-              const diffX = e.pageX - startX;
-              const hoursDiff = Math.round(diffX / 50); // Adjust step size for resizing
-              newEnd = new Date(ev.originalEnd.getTime() + hoursDiff * 3600000);
-            }
-  
-            return { ...ev, start: newStart, end: newEnd };
-          }
-          return ev;
-        })
-      );
+  // Create a new event
+  const handleCreateEvent = () => {
+    if (!newEvent.title || !newEvent.date || !newEvent.time) return;
+
+    const eventDate = new Date(newEvent.date);
+    const eventStart = setHours(setMinutes(eventDate, 0), parseInt(newEvent.time, 10));
+    const eventEnd = new Date(eventStart.getTime() + 60 * 60000); // 1-hour event
+
+    const newEventData = {
+      id: events.length + 1,
+      title: newEvent.title,
+      start: eventStart,
+      end: eventEnd,
+      color: newEvent.color,
     };
-  
-    const handleMouseUp = () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-      setResizingEvent(null);
-    };
-  
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+
+    setEvents([...events, newEventData]);
+    setNewEvent({ title: "", date: "", time: "", color: "#ffdab9" });
   };
-  
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="timeline-container">
+        {/* Navigation */}
         <div className="month-header">
           <button onClick={handlePreviousMonth} className="nav-button">&lt; Previous</button>
           <h2>{format(currentDate, "MMMM yyyy")}</h2>
           <button onClick={handleNextMonth} className="nav-button">Next &gt;</button>
         </div>
 
+        {/* Create Event Form */}
+        <div className="create-event-form">
+          <input type="text" placeholder="Event Title" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} />
+          <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} />
+          <select value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}>
+            {times.map((time) => (
+              <option key={time} value={time}>
+                {format(setHours(new Date(), time), "ha")}
+              </option>
+            ))}
+          </select>
+          <input type="color" value={newEvent.color} onChange={(e) => setNewEvent({ ...newEvent, color: e.target.value })} />
+          <button onClick={handleCreateEvent}>Add Event</button>
+        </div>
+
+        {/* Timeline Grid */}
         <div className="timeline-grid">
           <div className="time-column">
             {times.map((time) => (
@@ -123,14 +106,7 @@ const TimelineMonthView = () => {
           </div>
 
           {daysInMonth.map((day) => (
-            <DayColumn
-              key={day.toISOString()}
-              day={day}
-              times={times}
-              events={events}
-              moveEvent={moveEvent}
-              onResize={handleResize}
-            />
+            <DayColumn key={day.toISOString()} day={day} times={times} events={events} moveEvent={moveEvent} />
           ))}
         </div>
       </div>
@@ -138,7 +114,7 @@ const TimelineMonthView = () => {
   );
 };
 
-const DraggableEvent = ({ event, onResize }) => {
+const DraggableEvent = ({ event }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.EVENT,
     item: { id: event.id },
@@ -169,20 +145,6 @@ const DraggableEvent = ({ event, onResize }) => {
           {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
         </div>
       </div>
-      <div
-        className="resize-handle vertical"
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          onResize(event.id, "vertical", e);
-        }}
-      />
-      <div
-        className="resize-handle horizontal"
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          onResize(event.id, "horizontal", e);
-        }}
-      />
     </div>
   );
 };
@@ -197,15 +159,11 @@ const TimeCell = ({ time, day, moveEvent }) => {
   }));
 
   return (
-    <div
-      ref={drop}
-      className="time-cell"
-      style={{ background: isOver ? "#f0f0f0" : "transparent" }}
-    />
+    <div ref={drop} className="time-cell" style={{ background: isOver ? "#f0f0f0" : "transparent" }} />
   );
 };
 
-const DayColumn = ({ day, times, events, moveEvent, onResize }) => {
+const DayColumn = ({ day, times, events, moveEvent }) => {
   return (
     <div className="day-column" style={{ position: "relative" }}>
       <div className="day-header">
@@ -219,44 +177,15 @@ const DayColumn = ({ day, times, events, moveEvent, onResize }) => {
         ))}
       </div>
 
-      {events
-        .filter((event) => isSameDay(event.start, day))
-        .map((event) => (
-          <DraggableEvent key={event.id} event={event} onResize={onResize} />
-        ))}
+      {events.filter((event) => isSameDay(event.start, day)).map((event) => (
+        <DraggableEvent key={event.id} event={event} />
+      ))}
     </div>
   );
 };
 
 const generateEvents = (currentDate) => {
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  return [
-    {
-      id: 1,
-      title: "Team Meeting",
-      start: new Date(year, month, 15, 9, 30),
-      end: new Date(year, month, 15, 11, 0),
-      color: "#ffdab9",
-    },
-    {
-      id: 2,
-      title: "Client Call",
-      start: new Date(year, month, 20, 14, 0),
-      end: new Date(year, month, 20, 15, 0),
-      color: "#b9ffda",
-    },
-    {
-      id: 3,
-      title: "Workshop",
-      start: new Date(year, month, 25, 10, 0),
-      end: new Date(year, month, 25, 16, 0),
-      color: "#dab9ff",
-    },
-
-  // Tests 
-  ];
+  return [];
 };
 
 export default TimelineMonthView;
