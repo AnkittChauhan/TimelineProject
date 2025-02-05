@@ -291,19 +291,6 @@
   font-size: 14px;
 }
 
-.month-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 15px 20px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  /* margin-bottom: 20px; */
-}
 
 .add-event-btn button {
   background-color: #007bff;

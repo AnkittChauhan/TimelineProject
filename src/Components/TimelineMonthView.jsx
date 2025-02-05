@@ -9,11 +9,23 @@ const ItemTypes = {
 };
 
 const TimelineMonthView = () => {
-
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState(generateEvents(currentDate));
-  const [resizingEvent, setResizingEvent] = useState(null);
+  const [events, setEvents] = useState(() => {
+    // Load events from localStorage on initial render
+    const storedEvents = localStorage.getItem("events");
+    if (storedEvents) {
+      // Parse events and ensure start and end are Date objects
+      const parsedEvents = JSON.parse(storedEvents).map(event => ({
+        ...event,
+        start: new Date(event.start),
+        end: new Date(event.end)
+      }));
+      return parsedEvents;
+    }
+    return generateEvents(currentDate);
+  });
   const [newEvent, setNewEvent] = useState({ title: "", date: "", time: "", color: "#ffdab9" });
+  const [isBtnClicked, setIsBtnClicked] = useState(false);
 
   // Handle month navigation
   const handlePreviousMonth = () => {
@@ -38,17 +50,19 @@ const TimelineMonthView = () => {
 
   // Move event handler
   const moveEvent = (eventId, newDay, newTime) => {
-    setEvents((prevEvents) =>
-      prevEvents.map((event) =>
+    setEvents((prevEvents) => {
+      const updatedEvents = prevEvents.map((event) =>
         event.id === eventId
           ? {
-            ...event,
-            start: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime, 0),
-            end: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime + 1, 0),
-          }
+              ...event,
+              start: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime, 0),
+              end: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime + 1, 0),
+            }
           : event
-      )
-    );
+      );
+      localStorage.setItem("events", JSON.stringify(updatedEvents)); // Save updated events to localStorage
+      return updatedEvents;
+    });
   };
 
   // Create a new event
@@ -67,25 +81,29 @@ const TimelineMonthView = () => {
       color: newEvent.color,
     };
 
-    setEvents([...events, newEventData]);
+    console.log(newEventData); // Debugging the event creation
+    setEvents((prevEvents) => {
+      const updatedEvents = [...prevEvents, newEventData];
+      localStorage.setItem("events", JSON.stringify(updatedEvents)); // Save new events to localStorage
+      return updatedEvents;
+    });
+
     setNewEvent({ title: "", date: "", time: "", color: "#ffdab9" });
-    setIsBtnClicked(false)
-    alert("Event Added Sucessfully !!")
+    setIsBtnClicked(false);
+    alert("Event Added Successfully!!");
   };
-
-  // for add btn handler 
-
-  const [isBtnClicked, setIsBtnClicked] = useState(false);
 
   const handleAddBtnClick = () => {
-    setIsBtnClicked(true)
-  }
-
-  const handleDeleteEvent = (eventId) => {
-    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+    setIsBtnClicked(true);
   };
 
-
+  const handleDeleteEvent = (eventId) => {
+    setEvents((prevEvents) => {
+      const updatedEvents = prevEvents.filter((event) => event.id !== eventId);
+      localStorage.setItem("events", JSON.stringify(updatedEvents)); // Save updated events to localStorage
+      return updatedEvents;
+    });
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -97,40 +115,46 @@ const TimelineMonthView = () => {
           <button onClick={handleNextMonth} className="nav-button">Next &gt;</button>
         </div>
 
-
         {/* Create Event Form */}
-
-
-        {
-          isBtnClicked ?
-            <div className="create-event-form">
-              <input type="text" placeholder="Event Title" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} />
-              <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} />
-              <select value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}>
-                {times.map((time) => (
-                  <option key={time} value={time}>
-                    {format(setHours(new Date(), time), "ha")}
-                  </option>
-                ))}
-              </select>
-              <input type="color" value={newEvent.color} onChange={(e) => setNewEvent({ ...newEvent, color: e.target.value })} />
-              <button onClick={handleCreateEvent}>Add Event</button>
-            </div>
-            :
-            <div className="add-event-btn">
-              <button onClick={handleAddBtnClick} id="add-btn" >
-                Add an Event
-              </button>
-            </div>
-        }
-
+        {isBtnClicked ? (
+          <div className="create-event-form">
+            <input
+              type="text"
+              placeholder="Event Title"
+              value={newEvent.title}
+              onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+            />
+            <input
+              type="date"
+              value={newEvent.date}
+              onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+            />
+            <select value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}>
+              {times.map((time) => (
+                <option key={time} value={time}>
+                  {format(setHours(new Date(), time), "ha")}
+                </option>
+              ))}
+            </select>
+            <input
+              type="color"
+              value={newEvent.color}
+              onChange={(e) => setNewEvent({ ...newEvent, color: e.target.value })}
+            />
+            <button onClick={handleCreateEvent}>Add Event</button>
+          </div>
+        ) : (
+          <div className="add-event-btn">
+            <button onClick={handleAddBtnClick} id="add-btn">
+              Add an Event
+            </button>
+          </div>
+        )}
 
         {/* Timeline Grid */}
         <div className="timeline-grid">
           <div className="time-column">
-            <div className="time-slot">
-              { /* to add first time colmn as a blank */}
-            </div>
+            <div className="time-slot"></div> {/* Blank first time column */}
             {times.map((time) => (
               <div key={time} className="time-slot">
                 {format(setHours(new Date(), time), "ha")}
@@ -139,7 +163,14 @@ const TimelineMonthView = () => {
           </div>
 
           {daysInMonth.map((day) => (
-            <DayColumn key={day.toISOString()} day={day} times={times} events={events} moveEvent={moveEvent} handleDeleteEvent={handleDeleteEvent} />
+            <DayColumn
+              key={day.toISOString()}
+              day={day}
+              times={times}
+              events={events}
+              moveEvent={moveEvent}
+              handleDeleteEvent={handleDeleteEvent}
+            />
           ))}
         </div>
       </div>
@@ -148,11 +179,6 @@ const TimelineMonthView = () => {
 };
 
 const DraggableEvent = ({ event, onDelete }) => {
-
-  const handleDeleteEvent = (eventId) => {
-    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
-  };
-
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.EVENT,
     item: { id: event.id },
@@ -190,7 +216,6 @@ const DraggableEvent = ({ event, onDelete }) => {
   );
 };
 
-
 const TimeCell = ({ time, day, moveEvent }) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.EVENT,
@@ -205,7 +230,7 @@ const TimeCell = ({ time, day, moveEvent }) => {
   );
 };
 
-const DayColumn = ({ day, times, events, moveEvent , handleDeleteEvent }) => {
+const DayColumn = ({ day, times, events, moveEvent, handleDeleteEvent }) => {
   return (
     <div className="day-column" style={{ position: "relative" }}>
       <div className="day-header">
@@ -219,10 +244,11 @@ const DayColumn = ({ day, times, events, moveEvent , handleDeleteEvent }) => {
         ))}
       </div>
 
-      {events.filter((event) => isSameDay(event.start, day)).map((event) => (
-        <DraggableEvent key={event.id} event={event} onDelete={handleDeleteEvent} />
-      ))}
-
+      {events
+        .filter((event) => isSameDay(event.start, day))
+        .map((event) => (
+          <DraggableEvent key={event.id} event={event} onDelete={handleDeleteEvent} />
+        ))}
     </div>
   );
 };
