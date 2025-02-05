@@ -33,7 +33,7 @@ const TimelineMonthView = () => {
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   // Time slots from 12 AM to 11 PM
-  const times = Array.from({ length: 25 }, (_, i) => i );
+  const times = Array.from({ length: 24 }, (_, i) => i );
 
   // Move event handler
   const moveEvent = (eventId, newDay, newTime) => {
@@ -98,6 +98,9 @@ const TimelineMonthView = () => {
         {/* Timeline Grid */}
         <div className="timeline-grid">
           <div className="time-column">
+          <div className="time-slot">
+               { /* to add first time colmn as a blank */}
+          </div>
             {times.map((time) => (
               <div key={time} className="time-slot">
                 {format(setHours(new Date(), time), "ha")}
