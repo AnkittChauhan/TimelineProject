@@ -9,6 +9,7 @@ const ItemTypes = {
 };
 
 const TimelineMonthView = () => {
+
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState(generateEvents(currentDate));
   const [resizingEvent, setResizingEvent] = useState(null);
@@ -75,10 +76,15 @@ const TimelineMonthView = () => {
   // for add btn handler 
 
   const [isBtnClicked, setIsBtnClicked] = useState(false);
-  
+
   const handleAddBtnClick = () => {
-      setIsBtnClicked(true)   
+    setIsBtnClicked(true)
   }
+
+  const handleDeleteEvent = (eventId) => {
+    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+  };
+
 
 
   return (
@@ -112,8 +118,8 @@ const TimelineMonthView = () => {
             </div>
             :
             <div className="add-event-btn">
-              <button onClick={ handleAddBtnClick } id="add-btn" >
-                Add an Event  
+              <button onClick={handleAddBtnClick} id="add-btn" >
+                Add an Event
               </button>
             </div>
         }
@@ -133,7 +139,7 @@ const TimelineMonthView = () => {
           </div>
 
           {daysInMonth.map((day) => (
-            <DayColumn key={day.toISOString()} day={day} times={times} events={events} moveEvent={moveEvent} />
+            <DayColumn key={day.toISOString()} day={day} times={times} events={events} moveEvent={moveEvent} handleDeleteEvent={handleDeleteEvent} />
           ))}
         </div>
       </div>
@@ -141,7 +147,12 @@ const TimelineMonthView = () => {
   );
 };
 
-const DraggableEvent = ({ event }) => {
+const DraggableEvent = ({ event, onDelete }) => {
+
+  const handleDeleteEvent = (eventId) => {
+    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== eventId));
+  };
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.EVENT,
     item: { id: event.id },
@@ -171,10 +182,14 @@ const DraggableEvent = ({ event }) => {
         <div className="event-time">
           {format(event.start, "HH:mm")} - {format(event.end, "HH:mm")}
         </div>
+        <button onClick={() => onDelete(event.id)} className="delete-button">
+          ❌
+        </button>
       </div>
     </div>
   );
 };
+
 
 const TimeCell = ({ time, day, moveEvent }) => {
   const [{ isOver }, drop] = useDrop(() => ({
@@ -190,7 +205,7 @@ const TimeCell = ({ time, day, moveEvent }) => {
   );
 };
 
-const DayColumn = ({ day, times, events, moveEvent }) => {
+const DayColumn = ({ day, times, events, moveEvent , handleDeleteEvent }) => {
   return (
     <div className="day-column" style={{ position: "relative" }}>
       <div className="day-header">
@@ -205,8 +220,9 @@ const DayColumn = ({ day, times, events, moveEvent }) => {
       </div>
 
       {events.filter((event) => isSameDay(event.start, day)).map((event) => (
-        <DraggableEvent key={event.id} event={event} />
+        <DraggableEvent key={event.id} event={event} onDelete={handleDeleteEvent} />
       ))}
+
     </div>
   );
 };
