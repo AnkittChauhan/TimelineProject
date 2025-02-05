@@ -33,7 +33,7 @@ const TimelineMonthView = () => {
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
   // Time slots from 12 AM to 11 PM
-  const times = Array.from({ length: 24 }, (_, i) => i );
+  const times = Array.from({ length: 24 }, (_, i) => i);
 
   // Move event handler
   const moveEvent = (eventId, newDay, newTime) => {
@@ -41,10 +41,10 @@ const TimelineMonthView = () => {
       prevEvents.map((event) =>
         event.id === eventId
           ? {
-              ...event,
-              start: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime, 0),
-              end: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime + 1, 0),
-            }
+            ...event,
+            start: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime, 0),
+            end: new Date(newDay.getFullYear(), newDay.getMonth(), newDay.getDate(), newTime + 1, 0),
+          }
           : event
       )
     );
@@ -68,7 +68,18 @@ const TimelineMonthView = () => {
 
     setEvents([...events, newEventData]);
     setNewEvent({ title: "", date: "", time: "", color: "#ffdab9" });
+    setIsBtnClicked(false)
+    alert("Event Added Sucessfully !!")
   };
+
+  // for add btn handler 
+
+  const [isBtnClicked, setIsBtnClicked] = useState(false);
+  
+  const handleAddBtnClick = () => {
+      setIsBtnClicked(true)   
+  }
+
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -80,27 +91,40 @@ const TimelineMonthView = () => {
           <button onClick={handleNextMonth} className="nav-button">Next &gt;</button>
         </div>
 
+
         {/* Create Event Form */}
-        <div className="create-event-form">
-          <input type="text" placeholder="Event Title" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} />
-          <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} />
-          <select value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}>
-            {times.map((time) => (
-              <option key={time} value={time}>
-                {format(setHours(new Date(), time), "ha")}
-              </option>
-            ))}
-          </select>
-          <input type="color" value={newEvent.color} onChange={(e) => setNewEvent({ ...newEvent, color: e.target.value })} />
-          <button onClick={handleCreateEvent}>Add Event</button>
-        </div>
+
+
+        {
+          isBtnClicked ?
+            <div className="create-event-form">
+              <input type="text" placeholder="Event Title" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} />
+              <input type="date" value={newEvent.date} onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} />
+              <select value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}>
+                {times.map((time) => (
+                  <option key={time} value={time}>
+                    {format(setHours(new Date(), time), "ha")}
+                  </option>
+                ))}
+              </select>
+              <input type="color" value={newEvent.color} onChange={(e) => setNewEvent({ ...newEvent, color: e.target.value })} />
+              <button onClick={handleCreateEvent}>Add Event</button>
+            </div>
+            :
+            <div className="add-event-btn">
+              <button onClick={ handleAddBtnClick } id="add-btn" >
+                Add an Event  
+              </button>
+            </div>
+        }
+
 
         {/* Timeline Grid */}
         <div className="timeline-grid">
           <div className="time-column">
-          <div className="time-slot">
-               { /* to add first time colmn as a blank */}
-          </div>
+            <div className="time-slot">
+              { /* to add first time colmn as a blank */}
+            </div>
             {times.map((time) => (
               <div key={time} className="time-slot">
                 {format(setHours(new Date(), time), "ha")}

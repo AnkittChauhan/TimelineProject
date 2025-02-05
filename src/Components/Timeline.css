@@ -277,11 +277,57 @@
   gap: 10px;
   margin: 10px 0;
   padding: 10px;
-  /* background: #f9f9f9; */
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background: #f9f9f9;
   border-radius: 5px;
 }
 
 .create-event-form input, .create-event-form button {
   padding: 5px;
   font-size: 14px;
+}
+
+.month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  /* margin-bottom: 20px; */
+}
+
+.add-event-btn button {
+  
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.add-event-btn button:hover {
+  background-color: #0056b3;
+}
+
+.add-event-btn button:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.add-event-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10vh;
 }
